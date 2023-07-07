@@ -1,0 +1,571 @@
+[
+    {
+        "id": "b6a812d6c99f5493",
+        "type": "tab",
+        "label": "coverStoryTakFlow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3b1a0b947a813858",
+        "type": "chatgpt",
+        "z": "b6a812d6c99f5493",
+        "name": "",
+        "APIKEY": "",
+        "credentials": {},
+        "x": 1320,
+        "y": 340,
+        "wires": [
+            [
+                "b3fb337ffa4ba0e8",
+                "dee1ce2472051958"
+            ]
+        ]
+    },
+    {
+        "id": "b3fb337ffa4ba0e8",
+        "type": "debug",
+        "z": "b6a812d6c99f5493",
+        "name": "debug resp",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1490,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "a1416835d887aa24",
+        "type": "http request",
+        "z": "b6a812d6c99f5493",
+        "name": "http req",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://geocode.maps.co/reverse?lat={{{payload.lat}}}&lon={{{payload.lon}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 840,
+        "y": 380,
+        "wires": [
+            [
+                "8cdf1152d5c07b26",
+                "b6b11ac0d67faa96"
+            ]
+        ]
+    },
+    {
+        "id": "8cdf1152d5c07b26",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "chatgpt req (coverstorylocal)",
+        "func": "var newMsg = { payload: String(\"given the information of \" + msg.payload.address.county + \" in \" + msg.payload.address.state + \" in \" + msg.payload.address.country + \", based on the real locations and businesses in the area, i want you to create a male and female fictional character based on the real locations in the area. Return with the characters First name (that isnt ethan), middle name, a unique last name, childhood nickname, birthdate and year, birthplace hospital and state, religion, political preference and why, current address and state, hometown address and state, job position, job description, business name and location (using an existing business in area), hobbies (return 2 hobbies in one sentence), interests (return 2 interests in one sentence), work history (return one sentence), education (return one sentence), relationship status and story (return one sentence), life story (return one sentence), background story (return one sentence), family history (return one sentence), personal goals (return one sentence), life achievements (return one sentence), and a reason for being at \" + msg.payload.address.road + \", \" + msg.payload.address.county + \" (returning 3 different reasons in one sentence). be as detailed as possible returning short points of information in a organized, neat, easy to read format and making sure to use real stores and addresses\")};\nnode.send(newMsg);\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1080,
+        "y": 380,
+        "wires": [
+            [
+                "3b1a0b947a813858"
+            ]
+        ]
+    },
+    {
+        "id": "b3a2ba340ffb978f",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "filter data",
+        "func": "var callsign = msg.payload.event.detail.contact._attributes.callsign;\nif (callsign === \"coverstorylocal\" || callsign === \"Coverstorylocal\" || callsign === \"cover story local\" || callsign === \"Cover story local\" || callsign === \"CoverStoryLocal\" || callsign === \"Cover Story Local\") {\n    msg.payload = {\n        \"lat\": msg.payload.event.point._attributes.lat,\n        \"lon\": msg.payload.event.point._attributes.lon,\n        \"uid\": msg.payload.event._attributes.uid,\n        \"callsign\": \"Local Cover: \"\n    };\n    node.send(msg);\n} else {\n    return null;\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 420,
+        "wires": [
+            [
+                "a1416835d887aa24",
+                "482f93d91615b11e"
+            ]
+        ]
+    },
+    {
+        "id": "25f55b06476048be",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "identity json",
+        "func": "const short = 10000;\nconst cinco = 5 * 60 * 1000;\nconst diez = 2 * cinco;\nconst stale = new Date(Date.now() + cinco).toISOString();\nvar COVERSTORY = msg.payload[1];\n\n\nmsg.payload = {\n    \"event\": {\n        \"_attributes\": {\n            \"version\": \"2.0\",\n            \"uid\": msg.payload[0][0].uid,\n            \"type\": \"a-u-G\",\n            \"how\": \"h-g-i-g-o\",\n            \"time\": new Date(Date.now()).toISOString(),\n            \"start\": new Date(Date.now()).toISOString(),\n            \"stale\": stale\n        },\n        \"point\": {\n            \"_attributes\": {\n                \"lat\": msg.payload[0][0].lat,\n                \"lon\": msg.payload[0][0].lon,\n                \"hae\": \"0.0\",\n                \"ce\": \"9999999.0\",\n                \"le\": \"9999999.0\"\n            }\n        },\n        \"detail\": {\n            \"contact\": {\n                \"_attributes\": {\n                    \"callsign\": msg.payload[0][0].callsign + msg.payload[0][1].address.county\n                }\n            },\n            \"status\": {\n                \"_attributes\": {\n                    \"readiness\": \"true\"\n                }\n            },\n            \"archive\": [{}, {}],\n            \"color\": {\n                \"_attributes\": {\n                    \"argb\": \"-1\"\n                }\n            },\n            \"usericon\": {\n                \"_attributes\": {\n                    \"iconsetpath\": \"f7f71666-8b28-4b57-9fbb-e38e61d33b79/Google/info-i.png\",\n                }\n            },\n            \"remarks\": {\n                \"_text\": COVERSTORY,\n            },\n        }\n    }\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1670,
+        "y": 420,
+        "wires": [
+            [
+                "b322ff4ad2748dcd",
+                "41ab97279ecf7724"
+            ]
+        ]
+    },
+    {
+        "id": "dee1ce2472051958",
+        "type": "join",
+        "z": "b6a812d6c99f5493",
+        "name": "",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 1490,
+        "y": 420,
+        "wires": [
+            [
+                "25f55b06476048be",
+                "0e8fd77b252c122f"
+            ]
+        ]
+    },
+    {
+        "id": "0e8fd77b252c122f",
+        "type": "debug",
+        "z": "b6a812d6c99f5493",
+        "name": "debug join",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1650,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "b322ff4ad2748dcd",
+        "type": "tak",
+        "z": "b6a812d6c99f5493",
+        "name": "TAK",
+        "x": 1910,
+        "y": 420,
+        "wires": [
+            [
+                "fbec8ef09a871510",
+                "8a29c741f55596b6"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "fbec8ef09a871510",
+        "type": "debug",
+        "z": "b6a812d6c99f5493",
+        "name": "debug cot",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2050,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "7e38065181938ddf",
+        "type": "udp out",
+        "z": "b6a812d6c99f5493",
+        "name": "",
+        "addr": "239.2.3.1",
+        "iface": "",
+        "port": "6969",
+        "ipv": "udp4",
+        "outport": "",
+        "base64": false,
+        "multicast": "multi",
+        "x": 2170,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "6e12990d78f0345b",
+        "type": "tak",
+        "z": "b6a812d6c99f5493",
+        "name": "TAK",
+        "x": 490,
+        "y": 440,
+        "wires": [
+            [
+                "b3a2ba340ffb978f",
+                "4a0a2ec75a59cd28",
+                "ea548e4cd52e767e"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "fc55995028dc5693",
+        "type": "tcp in",
+        "z": "b6a812d6c99f5493",
+        "name": "",
+        "server": "client",
+        "host": "10.237.104.20",
+        "port": "8089",
+        "datamode": "stream",
+        "datatype": "utf8",
+        "newline": "",
+        "topic": "",
+        "trim": false,
+        "base64": false,
+        "tls": "1c52b35895c06e7e",
+        "x": 260,
+        "y": 440,
+        "wires": [
+            [
+                "6e12990d78f0345b"
+            ]
+        ]
+    },
+    {
+        "id": "41ab97279ecf7724",
+        "type": "debug",
+        "z": "b6a812d6c99f5493",
+        "name": "debug json",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1850,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "df8198909aafa2ad",
+        "type": "udp in",
+        "z": "b6a812d6c99f5493",
+        "name": "",
+        "iface": "",
+        "port": "6969",
+        "ipv": "udp4",
+        "multicast": "true",
+        "group": "239.2.3.1",
+        "datatype": "utf8",
+        "x": 270,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3017a5897e087416",
+        "type": "comment",
+        "z": "b6a812d6c99f5493",
+        "name": "configure TCP (TAKServer)",
+        "info": "if using SSL/TLS ensure you upload your certificates, key and input your passphrase.\nCertificates (.pem) and key (.key) can be found in your TAKServers directory where it stores all TAK client certificates.\nDefualt SSL/TLS port is 8089.\n",
+        "x": 270,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "11bb65db597e5ae8",
+        "type": "comment",
+        "z": "b6a812d6c99f5493",
+        "name": "configure TCP (TAKServer)",
+        "info": "if using SSL/TLS ensure you upload your certificates, key and input your passphrase.\nCertificates (.pem) and key (.key) can be found in your TAKServers directory where it stores all TAK client certificates.\nDefualt SSL/TLS port is 8089.\n",
+        "x": 2190,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "8a29c741f55596b6",
+        "type": "tcp out",
+        "z": "b6a812d6c99f5493",
+        "name": "",
+        "host": "10.237.104.20",
+        "port": "8089",
+        "beserver": "client",
+        "base64": false,
+        "end": false,
+        "tls": "1c52b35895c06e7e",
+        "x": 2190,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "e52129151ba6ea76",
+        "type": "comment",
+        "z": "b6a812d6c99f5493",
+        "name": "configure chatgpt",
+        "info": "go to openai and copy paste your free api key obtained.\nhttps://platform.openai.com/account/api-keys",
+        "x": 1300,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "d1ae6809c83bffcc",
+        "type": "comment",
+        "z": "b6a812d6c99f5493",
+        "name": "README",
+        "info": "",
+        "x": 480,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "b6b11ac0d67faa96",
+        "type": "join",
+        "z": "b6a812d6c99f5493",
+        "name": "",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "payload",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 1010,
+        "y": 440,
+        "wires": [
+            [
+                "6c7b9c4812b5eea1"
+            ]
+        ]
+    },
+    {
+        "id": "482f93d91615b11e",
+        "type": "delay",
+        "z": "b6a812d6c99f5493",
+        "name": "delay",
+        "pauseType": "delay",
+        "timeout": "100",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 850,
+        "y": 440,
+        "wires": [
+            [
+                "b6b11ac0d67faa96"
+            ]
+        ]
+    },
+    {
+        "id": "6c7b9c4812b5eea1",
+        "type": "delay",
+        "z": "b6a812d6c99f5493",
+        "name": "delay",
+        "pauseType": "delay",
+        "timeout": "100",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1330,
+        "y": 440,
+        "wires": [
+            [
+                "dee1ce2472051958"
+            ]
+        ]
+    },
+    {
+        "id": "7622ed83ddd28692",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "chatgpt req (coveraction)",
+        "func": "var newMsg = { payload: String(\"look up businesses, restaurants, shops, stores, and recreational activities in \" + msg.payload.address.county + \" in \" + msg.payload.address.state + \" in \" + msg.payload.address.country + \", and based on the real locations and businesses in the area, i want you to return multiple reasons and alibis for why someone would be on \" + msg.payload.address.road + \", \" + msg.payload.address.city + \" (returning 10 different reasons in one sentence). be as detailed as possible returning short points of information in a neat, organized, easy to read format and making sure to use real stores and addresses\") };\nnode.send(newMsg);",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1090,
+        "y": 500,
+        "wires": [
+            [
+                "3b1a0b947a813858"
+            ]
+        ]
+    },
+    {
+        "id": "4a0a2ec75a59cd28",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "filter data",
+        "func": "var callsign = msg.payload.event.detail.contact._attributes.callsign;\nif (callsign === \"coveraction\" || callsign === \"Coveraction\" || callsign === \"cover action\" || callsign === \"Cover action\" || callsign === \"CoverAction\" || callsign === \"Cover Action\") {\n    msg.payload = {\n        \"lat\": msg.payload.event.point._attributes.lat,\n        \"lon\": msg.payload.event.point._attributes.lon,\n        \"uid\": msg.payload.event._attributes.uid,\n        \"callsign\": \"Cover for Action: \"\n    };\n    node.send(msg);\n} else {\n    return null;\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 460,
+        "wires": [
+            [
+                "482f93d91615b11e",
+                "7cf965c27d3e749c"
+            ]
+        ]
+    },
+    {
+        "id": "7cf965c27d3e749c",
+        "type": "http request",
+        "z": "b6a812d6c99f5493",
+        "name": "http req",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://geocode.maps.co/reverse?lat={{{payload.lat}}}&lon={{{payload.lon}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 840,
+        "y": 500,
+        "wires": [
+            [
+                "7622ed83ddd28692",
+                "b6b11ac0d67faa96"
+            ]
+        ]
+    },
+    {
+        "id": "82ad6a11fa752094",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "chatgpt req (coverstorytourist)",
+        "func": "var newMsg = { payload: String(\"given the information about \" + msg.payload.address.county + \" in \" + msg.payload.address.state + \" in \" + msg.payload.address.country + \",  \" + msg.payload.address.road + \", i want you to create a male and female fictional character from out of state who are visiting or passing through \" + msg.payload.address.city + \". Return with the characters first name (that isnt ethan), middle name, a unique last name, childhood nickname, birthdate and year, birthplace hospital and state, religion, political preference and why, current address, state and country, hometown address, state, and country, job position, job description, business name and location (using an existing business in area), hobbies (return 2 hobbies in one sentence), interests (return 2 interests in one sentence), work history (return one sentence), education (return one sentence), relationship status and story (return one sentence), life story (return one sentence), background story (return one sentence), family history (return one sentence), personal goals (return one sentence), life achievements (return one sentence), and a reason for why they are currently visiting \" + msg.payload.address.county + \" (returning 3 different reasons in one sentence). be as detailed as possible returning short points of information in a organized, neat, easy to read format and making sure to use real stores and addresses\") };\nnode.send(newMsg);",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 340,
+        "wires": [
+            [
+                "3b1a0b947a813858"
+            ]
+        ]
+    },
+    {
+        "id": "580bf088392eb33e",
+        "type": "http request",
+        "z": "b6a812d6c99f5493",
+        "name": "http req",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://geocode.maps.co/reverse?lat={{{payload.lat}}}&lon={{{payload.lon}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 840,
+        "y": 340,
+        "wires": [
+            [
+                "82ad6a11fa752094",
+                "b6b11ac0d67faa96"
+            ]
+        ]
+    },
+    {
+        "id": "ea548e4cd52e767e",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "filter data",
+        "func": "var callsign = msg.payload.event.detail.contact._attributes.callsign;\nif (callsign === \"coverstorytourist\" || callsign === \"Coverstorytourist\" || callsign === \"cover story tourist\" || callsign === \"Cover story tourist\" || callsign === \"CoverStoryTourist\" || callsign === \"Cover Story Tourist\") {\n    msg.payload = {\n        \"lat\": msg.payload.event.point._attributes.lat,\n        \"lon\": msg.payload.event.point._attributes.lon,\n        \"uid\": msg.payload.event._attributes.uid,\n        \"callsign\": \"Tourist Cover: \"\n    };\n    node.send(msg);\n} else {\n    return null;\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 380,
+        "wires": [
+            [
+                "580bf088392eb33e",
+                "482f93d91615b11e"
+            ]
+        ]
+    },
+    {
+        "id": "1c52b35895c06e7e",
+        "type": "tls-config",
+        "name": "node-red to takserver",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "node-red.pem",
+        "keyname": "node-red.key",
+        "caname": "ca.pem",
+        "servername": "",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    }
+]
