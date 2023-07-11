@@ -2,7 +2,7 @@
     {
         "id": "b6a812d6c99f5493",
         "type": "tab",
-        "label": "coverStoryTakFlow",
+        "label": "identityTakFlow",
         "disabled": false,
         "info": "",
         "env": []
@@ -13,7 +13,6 @@
         "z": "b6a812d6c99f5493",
         "name": "",
         "APIKEY": "",
-        "credentials": {},
         "x": 1320,
         "y": 340,
         "wires": [
@@ -180,7 +179,7 @@
         "wires": [
             [
                 "fbec8ef09a871510",
-                "8a29c741f55596b6"
+                "7e38065181938ddf"
             ],
             [],
             []
@@ -224,13 +223,16 @@
         "type": "tak",
         "z": "b6a812d6c99f5493",
         "name": "TAK",
-        "x": 490,
+        "x": 450,
         "y": 440,
         "wires": [
             [
                 "b3a2ba340ffb978f",
                 "4a0a2ec75a59cd28",
-                "ea548e4cd52e767e"
+                "ea548e4cd52e767e",
+                "d2ea4ea70cb3b101",
+                "6828d075b4293b24",
+                "3cd0ed0801fc0633"
             ],
             [],
             []
@@ -251,12 +253,10 @@
         "trim": false,
         "base64": false,
         "tls": "1c52b35895c06e7e",
-        "x": 260,
-        "y": 440,
+        "x": 220,
+        "y": 380,
         "wires": [
-            [
-                "6e12990d78f0345b"
-            ]
+            []
         ]
     },
     {
@@ -287,8 +287,8 @@
         "multicast": "true",
         "group": "239.2.3.1",
         "datatype": "utf8",
-        "x": 270,
-        "y": 500,
+        "x": 230,
+        "y": 440,
         "wires": [
             []
         ]
@@ -299,8 +299,8 @@
         "z": "b6a812d6c99f5493",
         "name": "configure TCP (TAKServer)",
         "info": "if using SSL/TLS ensure you upload your certificates, key and input your passphrase.\nCertificates (.pem) and key (.key) can be found in your TAKServers directory where it stores all TAK client certificates.\nDefualt SSL/TLS port is 8089.\n",
-        "x": 270,
-        "y": 400,
+        "x": 230,
+        "y": 340,
         "wires": []
     },
     {
@@ -457,7 +457,7 @@
         "finalize": "",
         "libs": [],
         "x": 660,
-        "y": 460,
+        "y": 520,
         "wires": [
             [
                 "482f93d91615b11e",
@@ -546,13 +546,102 @@
         "finalize": "",
         "libs": [],
         "x": 660,
-        "y": 380,
+        "y": 320,
         "wires": [
             [
                 "580bf088392eb33e",
                 "482f93d91615b11e"
             ]
         ]
+    },
+    {
+        "id": "98b730db81879fa3",
+        "type": "udp in",
+        "z": "b6a812d6c99f5493",
+        "name": "udp 239.2.3.1:6969 (ZT)",
+        "iface": "",
+        "port": "6969",
+        "ipv": "udp4",
+        "multicast": "true",
+        "group": "239.2.3.1",
+        "datatype": "buffer",
+        "x": 220,
+        "y": 500,
+        "wires": [
+            [
+                "6e12990d78f0345b"
+            ]
+        ]
+    },
+    {
+        "id": "d2ea4ea70cb3b101",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "filter data (ZT)",
+        "func": "var callsign = msg.payload.cotEvent.detail.contact.callsign;\nif (callsign === \"coverstorytourist\" || callsign === \"Coverstorytourist\" || callsign === \"cover story tourist\" || callsign === \"Cover story tourist\" || callsign === \"CoverStoryTourist\" || callsign === \"Cover Story Tourist\") {\n    msg.payload = {\n        \"lat\": msg.payload.cotEvent.lat,\n        \"lon\": msg.payload.cotEvent.lon,\n        \"uid\": msg.payload.cotEvent.uid,\n        \"callsign\": \"Tourist Cover: \"\n    };\n    node.send(msg);\n} else {\n    return null;\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 360,
+        "wires": [
+            [
+                "580bf088392eb33e",
+                "482f93d91615b11e"
+            ]
+        ]
+    },
+    {
+        "id": "6828d075b4293b24",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "filter data (ZT)",
+        "func": "var callsign = msg.payload.cotEvent.detail.contact.callsign;\nif (callsign === \"coverstorylocal\" || callsign === \"Coverstorylocal\" || callsign === \"cover story local\" || callsign === \"Cover story local\" || callsign === \"CoverStoryLocal\" || callsign === \"Cover Story Local\") {\n    msg.payload = {\n        \"lat\": msg.payload.cotEvent.lat,\n        \"lon\": msg.payload.cotEvent.lon,\n        \"uid\": msg.payload.cotEvent.uid,\n        \"callsign\": \"Local Cover: \"\n    };\n    node.send(msg);\n} else {\n    return null;\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 460,
+        "wires": [
+            [
+                "a1416835d887aa24",
+                "482f93d91615b11e"
+            ]
+        ]
+    },
+    {
+        "id": "3cd0ed0801fc0633",
+        "type": "function",
+        "z": "b6a812d6c99f5493",
+        "name": "filter data (ZT)",
+        "func": "var callsign = msg.payload.cotEvent.detail.contact.callsign;\nif (callsign === \"coveraction\" || callsign === \"Coveraction\" || callsign === \"cover action\" || callsign === \"Cover action\" || callsign === \"CoverAction\" || callsign === \"Cover Action\") {\n    msg.payload = {\n        \"lat\": msg.payload.cotEvent.lat,\n        \"lon\": msg.payload.cotEvent.lon,\n        \"uid\": msg.payload.cotEvent.uid,\n        \"callsign\": \"Cover for Action: \"\n    };\n    node.send(msg);\n} else {\n    return null;\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 560,
+        "wires": [
+            [
+                "7cf965c27d3e749c",
+                "482f93d91615b11e"
+            ]
+        ]
+    },
+    {
+        "id": "302c409362528a87",
+        "type": "comment",
+        "z": "b6a812d6c99f5493",
+        "name": "if using ZeroTier over UDP connect the \"udp (ZT)\" ",
+        "info": "",
+        "x": 230,
+        "y": 560,
+        "wires": []
     },
     {
         "id": "1c52b35895c06e7e",
